@@ -3,12 +3,6 @@ CREATE DATABASE IF NOT EXISTS monit_ore;
 USE monit_ore;
 
 
--- =========================================================
--- EMPRESA
--- Cliente direto do Monitor Ore.
--- É a empresa responsável por fornecer as torres.
--- =========================================================
-
 CREATE TABLE empresa (
     id_empresa INT PRIMARY KEY AUTO_INCREMENT,
 
@@ -23,12 +17,6 @@ CREATE TABLE empresa (
 );
 
 
--- =========================================================
--- MINERADORA
--- Empresa que recebe/utiliza as torres.
--- Mantemos somente os dados essenciais de identificação.
--- =========================================================
-
 CREATE TABLE mineradora (
     id_mineradora INT PRIMARY KEY AUTO_INCREMENT,
 
@@ -37,13 +25,6 @@ CREATE TABLE mineradora (
 );
 
 
--- =========================================================
--- ENDERECO_MINERADORA
--- Endereço básico da mineradora.
---
--- Relação 1:1:
--- uma mineradora possui um endereço.
--- =========================================================
 
 CREATE TABLE endereco_mineradora (
     id_endereco INT PRIMARY KEY AUTO_INCREMENT,
@@ -64,16 +45,6 @@ CREATE TABLE endereco_mineradora (
 );
 
 
--- =========================================================
--- CARGO
--- Cargos criados/customizados por cada empresa.
---
--- Ex.:
--- Administrador
--- Operador
--- Técnico
--- Analista
--- =========================================================
 
 CREATE TABLE cargo (
     id_cargo INT PRIMARY KEY AUTO_INCREMENT,
@@ -94,17 +65,6 @@ CREATE TABLE cargo (
 );
 
 
--- =========================================================
--- PERMISSAO
--- Permissões fixas existentes na aplicação.
---
--- Ex.:
--- Visualizar Dashboard
--- Cadastrar Usuário
--- Editar Usuário
--- Cadastrar Torre
--- Configurar Monitoramento
--- =========================================================
 
 CREATE TABLE permissao (
     id_permissao INT PRIMARY KEY AUTO_INCREMENT,
@@ -114,12 +74,6 @@ CREATE TABLE permissao (
 );
 
 
--- =========================================================
--- CARGO_PERMISSAO
--- Tabela associativa entre CARGO e PERMISSAO.
---
--- CARGO N:N PERMISSAO
--- =========================================================
 
 CREATE TABLE cargo_permissao (
     fk_cargo INT NOT NULL,
@@ -140,14 +94,6 @@ CREATE TABLE cargo_permissao (
 );
 
 
--- =========================================================
--- USUARIO
--- Usuários que possuem acesso à plataforma.
---
--- A empresa do usuário pode ser descoberta através:
---
--- USUARIO -> CARGO -> EMPRESA
--- =========================================================
 
 CREATE TABLE usuario (
     id_usuario INT PRIMARY KEY AUTO_INCREMENT,
@@ -177,17 +123,6 @@ CREATE TABLE usuario (
 );
 
 
--- =========================================================
--- TORRE
---
--- A torre conecta:
---
--- EMPRESA     = quem forneceu a torre
--- MINERADORA  = onde a torre está instalada
---
--- O campo localizacao identifica onde a torre está
--- localizada dentro da operação da mineradora.
--- =========================================================
 
 CREATE TABLE torre (
     id_torre INT PRIMARY KEY AUTO_INCREMENT,
@@ -232,17 +167,6 @@ CREATE TABLE torre (
 );
 
 
--- =========================================================
--- IHM
--- Computador/IHM instalado na torre e monitorado
--- pelo agente do Monitor Ore.
---
--- Relação:
--- TORRE 1 -> 0..1 IHM
---
--- O UNIQUE em fk_torre impede duas IHMs
--- de serem associadas à mesma torre.
--- =========================================================
 
 CREATE TABLE ihm (
     id_ihm INT PRIMARY KEY AUTO_INCREMENT,
@@ -277,17 +201,6 @@ CREATE TABLE ihm (
 );
 
 
--- =========================================================
--- COMPONENTE
--- Catálogo de componentes/métricas que podem ser
--- monitorados.
---
--- Exemplos:
---
--- CPU   | %
--- RAM   | %
--- Disco | %
--- =========================================================
 
 CREATE TABLE componente (
     id_componente INT PRIMARY KEY AUTO_INCREMENT,
@@ -298,24 +211,6 @@ CREATE TABLE componente (
 );
 
 
--- =========================================================
--- IHM_COMPONENTE
---
--- Tabela ASSOCIATIVA entre IHM e COMPONENTE.
---
--- IHM N:N COMPONENTE
---
--- Também guarda o parâmetro específico daquela relação.
---
--- Exemplo:
---
--- IHM 1 + CPU   = 80%
--- IHM 1 + RAM   = 60%
--- IHM 1 + Disco = 75%
---
--- IHM 2 + CPU   = 70%
--- IHM 2 + RAM   = 70%
--- =========================================================
 
 CREATE TABLE ihm_componente (
     fk_ihm INT NOT NULL,
