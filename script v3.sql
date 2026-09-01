@@ -5,7 +5,7 @@ USE monit_ore;
 
 -- =========================================================
 -- EMPRESA
--- Empresa responsável pelo fornecimento das torres.
+-- Empresa responsável por fornecer as torres.
 -- =========================================================
 
 CREATE TABLE empresa (
@@ -15,18 +15,23 @@ CREATE TABLE empresa (
     cnpj CHAR(14) NOT NULL UNIQUE,
     email VARCHAR(150) NOT NULL UNIQUE,
 
-    status_atividade VARCHAR(20) NOT NULL DEFAULT 'Ativo',
+    status_atividade VARCHAR(20)
+        NOT NULL DEFAULT 'Ativo',
 
     CONSTRAINT chk_empresa_status
         CHECK (
-            status_atividade IN ('Ativo', 'Inativo')
+            status_atividade IN (
+                'Ativo',
+                'Inativo'
+            )
         )
 );
 
 
 -- =========================================================
 -- MINERADORA
--- Unidade/local onde os funcionários e torres estão alocados.
+-- Empresa que recebe e utiliza as torres.
+-- Também representa a unidade/local do funcionário.
 -- =========================================================
 
 CREATE TABLE mineradora (
@@ -39,7 +44,8 @@ CREATE TABLE mineradora (
 
 -- =========================================================
 -- ENDEREÇO DA MINERADORA
--- Relação 1:1 com mineradora.
+-- Uma mineradora possui um endereço.
+-- Relação 1:1.
 -- =========================================================
 
 CREATE TABLE endereco_mineradora (
@@ -72,22 +78,29 @@ CREATE TABLE cargo (
     nome VARCHAR(100) NOT NULL,
     descricao VARCHAR(250),
 
-    status_atividade VARCHAR(20) NOT NULL DEFAULT 'Ativo',
+    status_atividade VARCHAR(20)
+        NOT NULL DEFAULT 'Ativo',
 
     fk_empresa INT NOT NULL,
 
     CONSTRAINT chk_cargo_status
         CHECK (
-            status_atividade IN ('Ativo', 'Inativo')
+            status_atividade IN (
+                'Ativo',
+                'Inativo'
+            )
         ),
 
     CONSTRAINT fk_cargo_empresa
         FOREIGN KEY (fk_empresa)
         REFERENCES empresa(id_empresa),
 
-    -- Uma empresa não pode possuir cargos duplicados.
+    -- Impede cargos repetidos dentro da mesma empresa.
     CONSTRAINT uq_cargo_empresa_nome
-        UNIQUE (fk_empresa, nome)
+        UNIQUE (
+            fk_empresa,
+            nome
+        )
 );
 
 
@@ -106,7 +119,7 @@ CREATE TABLE permissao (
 
 -- =========================================================
 -- CARGO E PERMISSÃO
--- Relação N:N entre cargo e permissão.
+-- Relação N:N.
 -- =========================================================
 
 CREATE TABLE cargo_permissao (
@@ -131,36 +144,43 @@ CREATE TABLE cargo_permissao (
 -- =========================================================
 -- USUÁRIO
 -- Funcionário que acessa o sistema.
+-- A senha está em texto para o projeto local.
 -- =========================================================
 
 CREATE TABLE usuario (
     id_usuario INT PRIMARY KEY AUTO_INCREMENT,
 
     nome VARCHAR(200) NOT NULL,
+
     email VARCHAR(200) NOT NULL UNIQUE,
+
     cpf CHAR(11) NOT NULL UNIQUE,
 
-    senha_hash VARCHAR(255) NOT NULL,
+    senha VARCHAR(255) NOT NULL,
 
     data_nascimento DATE,
+
     telefone VARCHAR(20),
 
-    primeiro_acesso BOOLEAN NOT NULL DEFAULT TRUE,
+    primeiro_acesso BOOLEAN
+        NOT NULL DEFAULT TRUE,
 
-    status_atividade VARCHAR(20) NOT NULL DEFAULT 'Ativo',
+    status_atividade VARCHAR(20)
+        NOT NULL DEFAULT 'Ativo',
 
     ultimo_acesso DATETIME,
 
     fk_cargo INT NOT NULL,
 
     -- Unidade/local do funcionário.
-    -- Pode ficar nulo caso o funcionário ainda não tenha
-    -- uma mineradora definida.
     fk_mineradora INT,
 
     CONSTRAINT chk_usuario_status
         CHECK (
-            status_atividade IN ('Ativo', 'Inativo')
+            status_atividade IN (
+                'Ativo',
+                'Inativo'
+            )
         ),
 
     CONSTRAINT fk_usuario_cargo
@@ -182,6 +202,7 @@ CREATE TABLE torre (
     id_torre INT PRIMARY KEY AUTO_INCREMENT,
 
     nome VARCHAR(100) NOT NULL,
+
     codigo VARCHAR(50) NOT NULL,
 
     localizacao VARCHAR(150),
@@ -193,6 +214,7 @@ CREATE TABLE torre (
         NOT NULL DEFAULT TRUE,
 
     fk_empresa INT NOT NULL,
+
     fk_mineradora INT NOT NULL,
 
     CONSTRAINT chk_torre_status
@@ -233,7 +255,9 @@ CREATE TABLE ihm (
     uuid_agente CHAR(36) UNIQUE,
 
     hostname VARCHAR(100),
+
     ip VARCHAR(45),
+
     sistema_operacional VARCHAR(100),
 
     status_operacional VARCHAR(20)
@@ -268,17 +292,19 @@ CREATE TABLE componente (
     id_componente INT PRIMARY KEY AUTO_INCREMENT,
 
     nome VARCHAR(100) NOT NULL UNIQUE,
+
     unidade_medida VARCHAR(20) NOT NULL
 );
 
 
 -- =========================================================
 -- IHM E COMPONENTE
--- Relação N:N entre IHM e componente.
--- =========================================================-- =========================================================-- =========================================================-- =========================================================-- =========================================================-- =========================================================
+-- Relação N:N.
+-- =========================================================
 
 CREATE TABLE ihm_componente (
     fk_ihm INT NOT NULL,
+
     fk_componente INT NOT NULL,
 
     valor_limite DECIMAL(10, 2) NOT NULL,
