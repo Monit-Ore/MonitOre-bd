@@ -327,3 +327,78 @@ CREATE TABLE ihm_componente (
         FOREIGN KEY (fk_componente)
         REFERENCES componente(id_componente)
 );
+
+-- =========================================================
+-- Membros da equipe de desenvolvimento
+-- Tabela Informativa.
+-- =========================================================
+
+CREATE TABLE equipe (
+    id_equipe INT NOT NULL,
+    nome VARCHAR(17) NOT NULL,
+    cargo VARCHAR(21) NOT NULL,
+    descricao VARCHAR(75) NOT NULL,
+    githubUrl VARCHAR(500) UNIQUE,
+    linkedinUrl VARCHAR(500) UNIQUE,
+    email VARCHAR(500) UNIQUE,
+    caminhoFoto VARCHAR(300) NOT NULL UNIQUE,
+    PRIMARY KEY (id_equipe)
+);
+
+INSERT INTO equipe (nome, cargo, descricao, githubUrl, linkedinUrl, email, caminhoFoto) 
+VALUES 
+(
+    'Lucas Gama', 
+    "Product Owner", 
+    'Product Owner com bagagem técnica como Desenvolvedor Full Stack', 
+    'https://github.com/Lucas-S-Gama', 
+    'https://www.linkedin.com/in/lucas-gama-b724953b0/', 
+    'lucas.gama@sptech.school', 
+    'imgs/Equipe/LucasGama.png'
+),
+(
+    'Thiago Emidio', 
+    "", 
+    '', 
+    'https://github.com/', 
+    'https://www.linkedin.com/in/', 
+    '@sptech.school', 
+    'imgs/Equipe/'
+),
+(
+    'Nicole Rodrigues', 
+    "", 
+    '', 
+    'https://github.com/', 
+    'https://www.linkedin.com/in/', 
+    '@sptech.school', 
+    'imgs/Equipe/'
+),
+(
+    'Vinicius Borges', 
+    "", 
+    '', 
+    'https://github.com/', 
+    'https://www.linkedin.com/in/', 
+    '@sptech.school', 
+    'imgs/Equipe/'
+),
+(
+    'Guilherme Britto', 
+    "", 
+    '', 
+    'https://github.com/', 
+    'https://www.linkedin.com/in/', 
+    '@sptech.school', 
+    'imgs/Equipe/'
+);
+
+SELECT
+nome,
+cargo,
+descricao,
+githubUrl,
+linkedinUrl,
+email,
+caminhoFoto
+FROM equipe;
