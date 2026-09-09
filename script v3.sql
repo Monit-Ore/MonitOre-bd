@@ -338,10 +338,10 @@ CREATE TABLE equipe (
     nome VARCHAR(17) NOT NULL,
     cargo VARCHAR(21) NOT NULL,
     descricao VARCHAR(75) NOT NULL,
-    githubUrl VARCHAR(500) UNIQUE,
-    linkedinUrl VARCHAR(500) UNIQUE,
-    email VARCHAR(500) UNIQUE,
-    caminhoFoto VARCHAR(300) NOT NULL UNIQUE,
+    githubUrl VARCHAR(255) UNIQUE,
+    linkedinUrl VARCHAR(255) UNIQUE,
+    email VARCHAR(255) UNIQUE,
+    caminhoFoto VARCHAR(255) NOT NULL UNIQUE,
     PRIMARY KEY (id_equipe)
 );
 
