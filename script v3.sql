@@ -249,8 +249,8 @@ CREATE TABLE torre (
 -- Cada torre possui no máximo uma IHM.
 -- =========================================================
 
-CREATE TABLE ihm (
-    id_ihm INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE plc (
+    id_plc INT PRIMARY KEY AUTO_INCREMENT,
 
     uuid_agente CHAR(36) UNIQUE,
 
@@ -277,7 +277,7 @@ CREATE TABLE ihm (
             )
         ),
 
-    CONSTRAINT fk_ihm_torre
+    CONSTRAINT fk_plc_torre
         FOREIGN KEY (fk_torre)
         REFERENCES torre(id_torre)
 );
@@ -303,14 +303,14 @@ CREATE TABLE componente (
 -- =========================================================
 
 CREATE TABLE ihm_componente (
-    fk_ihm INT NOT NULL,
+    fk_plc INT NOT NULL,
 
     fk_componente INT NOT NULL,
 
     valor_limite DECIMAL(10, 2) NOT NULL,
 
     PRIMARY KEY (
-        fk_ihm,
+        fk_plc,
         fk_componente
     ),
 
@@ -319,86 +319,11 @@ CREATE TABLE ihm_componente (
             valor_limite >= 0
         ),
 
-    CONSTRAINT fk_ihm_componente_ihm
-        FOREIGN KEY (fk_ihm)
-        REFERENCES ihm(id_ihm),
+    CONSTRAINT fk_plc_componente_plc
+        FOREIGN KEY (fk_plc)
+        REFERENCES plc(id_plc),
 
     CONSTRAINT fk_ihm_componente_componente
         FOREIGN KEY (fk_componente)
         REFERENCES componente(id_componente)
 );
-
--- =========================================================
--- Membros da equipe de desenvolvimento
--- Tabela Informativa.
--- =========================================================
-
-CREATE TABLE equipe (
-    id_equipe INT NOT NULL,
-    nome VARCHAR(17) NOT NULL,
-    cargo VARCHAR(21) NOT NULL,
-    descricao VARCHAR(75) NOT NULL,
-    githubUrl VARCHAR(255) UNIQUE,
-    linkedinUrl VARCHAR(255) UNIQUE,
-    email VARCHAR(255) UNIQUE,
-    caminhoFoto VARCHAR(255) NOT NULL UNIQUE,
-    PRIMARY KEY (id_equipe)
-);
-
-INSERT INTO equipe (nome, cargo, descricao, githubUrl, linkedinUrl, email, caminhoFoto) 
-VALUES 
-(
-    'Lucas Gama', 
-    "Product Owner", 
-    'Product Owner com bagagem técnica como Desenvolvedor Full Stack', 
-    'https://github.com/Lucas-S-Gama', 
-    'https://www.linkedin.com/in/lucas-gama-b724953b0/', 
-    'lucas.gama@sptech.school', 
-    'imgs/Equipe/LucasGama.png'
-),
-(
-    'Thiago Emidio', 
-    "", 
-    '', 
-    'https://github.com/', 
-    'https://www.linkedin.com/in/', 
-    '@sptech.school', 
-    'imgs/Equipe/'
-),
-(
-    'Nicole Rodrigues', 
-    "", 
-    '', 
-    'https://github.com/', 
-    'https://www.linkedin.com/in/', 
-    '@sptech.school', 
-    'imgs/Equipe/'
-),
-(
-    'Vinicius Borges', 
-    "", 
-    '', 
-    'https://github.com/', 
-    'https://www.linkedin.com/in/', 
-    '@sptech.school', 
-    'imgs/Equipe/'
-),
-(
-    'Guilherme Britto', 
-    "", 
-    '', 
-    'https://github.com/', 
-    'https://www.linkedin.com/in/', 
-    '@sptech.school', 
-    'imgs/Equipe/'
-);
-
-SELECT
-nome,
-cargo,
-descricao,
-githubUrl,
-linkedinUrl,
-email,
-caminhoFoto
-FROM equipe;
