@@ -386,3 +386,65 @@ VALUES
     'guilherme.britto@sptech.school', 
     'imgs/Equipe/GuilhermeBritto.jpg'
 );
+
+
+INSERT INTO empresa (razao_social, cnpj, email) 
+VALUES 
+('Tech Towers Brasil Ltda', '12345678000199', 'contato@techtowers.com.br');
+
+INSERT INTO mineradora (razao_social, cnpj) 
+VALUES 
+('Mineração Vale de Ouro S.A.', '98765432000188');
+
+INSERT INTO endereco_mineradora (cep, logradouro, numero, complemento, bairro, cidade, estado, fk_mineradora) 
+VALUES 
+('35460000', 'Rodovia dos Minérios', 'S/N', 'KM 10 - Lote 5', 'Zona Rural', 'Brumadinho', 'MG', 1);
+
+INSERT INTO cargo (nome, descricao, fk_empresa) 
+VALUES 
+('Administrador', 'Acesso total e gerenciamento do sistema', 1),
+('Técnico de Campo', 'Monitoramento e manutenção das torres', 1);
+
+INSERT INTO permissao (nome, descricao) 
+VALUES 
+('ALL_PRIVILEGES', 'Permissão total no sistema'),
+('READ_ONLY', 'Apenas visualização dos dashboards e torres'),
+('MAINTENANCE', 'Permissão para alterar status de manutenção das torres');
+
+INSERT INTO cargo_permissao (fk_cargo, fk_permissao) 
+VALUES 
+(1, 1),
+(2, 2),
+(2, 3);
+
+INSERT INTO usuario (nome, email, cpf, senha, data_nascimento, telefone, fk_cargo, fk_mineradora) 
+VALUES 
+('João Carlos', 'joao.carlos@techtowers.com', '11122233344', 'senha123', '1985-06-15', '11999998888', 1, 1),
+('Maria Souza', 'maria.souza@techtowers.com', '55566677788', 'senha456', '1992-10-20', '31988887777', 2, 1);
+
+INSERT INTO torre (nome, codigo, localizacao, status_operacional, fk_empresa, fk_mineradora) 
+VALUES 
+('Torre Norte Alpha', 'TN-001', 'Setor Norte - Mina 1', 'Operacional', 1, 1),
+('Torre Sul Beta', 'TS-002', 'Setor Sul - Mina 1', 'Alerta', 1, 1);
+
+INSERT INTO plc (uuid_agente, hostname, ip, sistema_operacional, status_operacional, fk_torre) 
+VALUES 
+('550e8400-e29b-41d4-a716-446655440000', 'plc-norte-01', '192.168.10.50', 'Linux Ubuntu 22.04', 'Online', 1),
+('660e8400-e29b-41d4-a716-446655440001', 'plc-sul-02', '192.168.10.51', 'Linux Ubuntu 22.04', 'Manutenção', 2);
+
+INSERT INTO componente (nome, unidade_medida) 
+VALUES 
+('CPU', '%'),
+('Memória RAM', '%'),
+('Disco', 'GB');
+
+INSERT INTO ihm_componente (fk_plc, fk_componente, valor_limite) 
+VALUES 
+(1, 1, 85.00),
+(1, 2, 90.00),
+(2, 1, 85.00),
+(2, 3, 50.00);
+
+INSERT INTO usuario (nome, email, cpf, senha, data_nascimento, telefone, fk_cargo, fk_mineradora) 
+VALUES 
+('João Carl', 'joao.carlos2@techtowers.com', '11122233445', 'senha123', '1985-06-15', '11999998888', 1, 1);
