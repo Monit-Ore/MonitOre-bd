@@ -327,3 +327,62 @@ CREATE TABLE ihm_componente (
         FOREIGN KEY (fk_componente)
         REFERENCES componente(id_componente)
 );
+
+CREATE TABLE equipe (
+    id_equipe INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(17) NOT NULL,
+    cargo VARCHAR(21) NOT NULL,
+    descricao VARCHAR(75) NOT NULL,
+    githubUrl VARCHAR(255) UNIQUE,
+    linkedinUrl VARCHAR(255) UNIQUE,
+    email VARCHAR(255) UNIQUE,
+    caminhoFoto VARCHAR(255) NOT NULL UNIQUE
+);
+
+INSERT INTO equipe (nome, cargo, descricao, githubUrl, linkedinUrl, email, caminhoFoto) 
+VALUES 
+(
+    'Lucas Gama', 
+    "Product Owner", 
+    'Product Owner com bagagem técnica como Desenvolvedor Full Stack', 
+    'https://github.com/Lucas-S-Gama', 
+    'https://www.linkedin.com/in/lucas-gama-b724953b0/', 
+    'lucas.gama@sptech.school', 
+    'imgs/Equipe/LucasGama.jpg'
+),
+(
+    'Thiago Emidio', 
+    "Analista de Cloud", 
+    'Analista de Cloud com virtualização na AWS', 
+    'https://github.com/thiagoemidiosptech', 
+    'https://www.linkedin.com/in/thiago-emidio-9974a638b/', 
+    'thiago.souza@sptech.school', 
+    'imgs/Equipe/thiago.jpg'
+),
+(
+    'Nicole Rodrigues', 
+    "Scrum Master", 
+    'Scrum Master e analista de dados', 
+    'https://github.com/nicky-rodrigues', 
+    'https://www.linkedin.com/in/nicole-nascimento-8790763b8/', 
+    'nicole.nascimento@sptech.school', 
+    'imgs/Equipe/NicoleRodrigues.jpg'
+),
+(
+    'Vinicius Borges', 
+    "Full-stack", 
+    'Desenvolvimento de páginas Web', 
+    'https://github.com/vinicius-b-n', 
+    'https://www.linkedin.com/in/vinicius-borges-a03743435/', 
+    'vinicius.bnascimento@sptech.school', 
+    'imgs/Equipe/Vinicius.jpg'
+),
+(
+    'Guilherme Britto', 
+    "Dev back-end", 
+    'Desenvolvimento da integração do banco de dados', 
+    'https://github.com/guilhermebrtt', 
+    'https://www.linkedin.com/in/guilherme-britto-baa450312/', 
+    'guilherme.britto@sptech.school', 
+    'imgs/Equipe/GuilhermeBritto.jpg'
+);
