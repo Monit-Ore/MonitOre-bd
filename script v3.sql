@@ -212,6 +212,8 @@ CREATE TABLE torre (
 
     monitoramento_ativo BOOLEAN
         NOT NULL DEFAULT TRUE,
+        
+	descricao VARCHAR(255),
 
     fk_empresa INT NOT NULL,
 
@@ -245,8 +247,8 @@ CREATE TABLE torre (
 
 
 -- =========================================================
--- IHM
--- Cada torre possui no máximo uma IHM.
+-- PLC
+-- Cada torre possui no máximo uma PLC.
 -- =========================================================
 
 CREATE TABLE plc (
@@ -267,7 +269,7 @@ CREATE TABLE plc (
 
     fk_torre INT NOT NULL UNIQUE,
 
-    CONSTRAINT chk_ihm_status
+    CONSTRAINT chk_plc_status
         CHECK (
             status_operacional IN (
                 'Online',
@@ -285,7 +287,7 @@ CREATE TABLE plc (
 
 -- =========================================================
 -- COMPONENTE
--- Tipo de componente monitorado pela IHM.
+-- Tipo de componente monitorado pela PLC.
 -- =========================================================
 
 CREATE TABLE componente (
@@ -298,11 +300,11 @@ CREATE TABLE componente (
 
 
 -- =========================================================
--- IHM E COMPONENTE
+-- PLC E COMPONENTE
 -- Relação N:N.
 -- =========================================================
 
-CREATE TABLE ihm_componente (
+CREATE TABLE plc_componente (
     fk_plc INT NOT NULL,
 
     fk_componente INT NOT NULL,
@@ -323,10 +325,15 @@ CREATE TABLE ihm_componente (
         FOREIGN KEY (fk_plc)
         REFERENCES plc(id_plc),
 
-    CONSTRAINT fk_ihm_componente_componente
+    CONSTRAINT fk_plc_componente_componente
         FOREIGN KEY (fk_componente)
         REFERENCES componente(id_componente)
 );
+
+-- =========================================================
+-- EQUIPE
+-- Vai armazenar as informações da equipe que fez o projeto
+-- =========================================================
 
 CREATE TABLE equipe (
     id_equipe INT PRIMARY KEY AUTO_INCREMENT,
@@ -388,63 +395,161 @@ VALUES
 );
 
 
-INSERT INTO empresa (razao_social, cnpj, email) 
-VALUES 
-('Tech Towers Brasil Ltda', '12345678000199', 'contato@techtowers.com.br');
+-- =========================================================
+-- EMPRESA
+-- Empresa fornecedora/monitoradora das torres (a própria Monit Ore).
+-- =========================================================
+ 
+INSERT INTO empresa (razao_social, cnpj, email, status_atividade) VALUES
+('Monit Ore Soluções Industriais LTDA', '11222333000144', 'contato@monitore.com.br', 'Ativo');
+ 
+ 
+-- =========================================================
+-- MINERADORA
+-- Clientes que recebem as torres (conforme o protótipo).
+-- =========================================================
+ 
+INSERT INTO mineradora (razao_social, cnpj) VALUES
+('IBRAM', '22333444000155'),
+('CSN Mineradora', '33444555000166'),
+('Anglo America', '44555666000177');
+ 
+ 
+-- =========================================================
+-- ENDEREÇO DA MINERADORA
+-- =========================================================
+ 
+INSERT INTO endereco_mineradora
+    (cep, logradouro, numero, complemento, bairro, cidade, estado, fk_mineradora)
+VALUES
+('35400000', 'Rodovia MG-262', 'KM 12', 'Galpão 3', 'Distrito Industrial', 'Ouro Preto', 'Minas Gerais', 1),
+('25900000', 'Estrada do Minério', '850', NULL, 'Zona Rural', 'Volta Redonda', 'Rio de Janeiro', 2),
+('35460000', 'Rodovia dos Inconfidentes', 'KM 45', 'Setor Norte', 'Área Rural', 'Conceição do Mato Dentro', 'Minas Gerais', 3);
+ 
+ 
+-- =========================================================
+-- TORRE
+-- fk_empresa = 1 (Monit Ore) para todas.
+-- Códigos únicos por empresa (padrão: sigla da mineradora + número).
+-- =========================================================
+ 
+-- IBRAM (fk_mineradora = 1)
+INSERT INTO torre (nome, codigo, localizacao, status_operacional, monitoramento_ativo, fk_empresa, fk_mineradora) VALUES
+('Torre 001', 'IBR-001', 'Setor de Britagem - Área 1', 'Operacional', TRUE, 1, 1),
+('Torre 002', 'IBR-002', 'Pátio de Estocagem - Área 2', 'Alerta',      TRUE, 1, 1),
+('Torre 003', 'IBR-003', 'Correia Transportadora 3',    'Alerta',      TRUE, 1, 1),
+('Torre 004', 'IBR-004', 'Setor de Peneiramento',        'Alerta',      TRUE, 1, 1),
+('Torre 005', 'IBR-005', 'Pátio de Estocagem - Área 5',  'Operacional', TRUE, 1, 1),
+('Torre 006', 'IBR-006', 'Setor de Carregamento',        'Operacional', TRUE, 1, 1);
+ 
+-- CSN Mineradora (fk_mineradora = 2)
+INSERT INTO torre (nome, codigo, localizacao, status_operacional, monitoramento_ativo, fk_empresa, fk_mineradora) VALUES
+('Torre 001', 'CSN-001', 'Britador Primário',            'Alerta',      TRUE, 1, 2),
+('Torre 002', 'CSN-002', 'Correia Transportadora 1',      'Operacional', TRUE, 1, 2),
+('Torre 003', 'CSN-003', 'Setor de Beneficiamento',       'Alerta',      TRUE, 1, 2),
+('Torre 004', 'CSN-004', 'Pátio de Estocagem',            'Operacional', TRUE, 1, 2),
+('Torre 005', 'CSN-005', 'Setor de Carregamento Ferroviário', 'Operacional', TRUE, 1, 2);
+ 
+-- Anglo America (fk_mineradora = 3)
+INSERT INTO torre (nome, codigo, localizacao, status_operacional, monitoramento_ativo, fk_empresa, fk_mineradora) VALUES
+('Torre 001', 'ANG-001', 'Setor de Britagem Primária',    'Operacional', TRUE, 1, 3),
+('Torre 002', 'ANG-002', 'Correia Transportadora 2',      'Operacional', TRUE, 1, 3),
+('Torre 003', 'ANG-003', 'Pátio de Homogeneização',       'Operacional', TRUE, 1, 3),	
+('Torre 004', 'ANG-004', 'Setor de Peneiramento',         'Operacional', TRUE, 1, 3),
+('Torre 005', 'ANG-005', 'Barragem de Rejeitos',          'Alerta',      TRUE, 1, 3),
+('Torre 006', 'ANG-006', 'Setor de Carregamento',         'Operacional', TRUE, 1, 3);
+ 
+-- =========================================================
+-- COMPONENTE
+-- Fixos no sistema: CPU, RAM, Disco e Rede (todos em %).
+-- id_componente gerado: 1=CPU, 2=RAM, 3=Disco, 4=Rede.
+-- =========================================================
+ 
+INSERT INTO componente (nome, unidade_medida) VALUES
+('CPU', '%'), 
+('RAM', '%'),
+('Disco', '%'),
+('Rede', '%');
+ 
+ 
+-- =========================================================
+-- PLC
+-- Um PLC por torre (fk_torre é UNIQUE). Segue a mesma ordem
+-- de criação das torres acima, então fk_torre = 1..17.
+-- Torres com status 'Alerta' têm o PLC também em 'Alerta' e
+-- com última comunicação mais antiga (indicando o problema).
+-- =========================================================
+ 
+INSERT INTO plc (uuid_agente, hostname, ip, sistema_operacional, status_operacional, ultima_comunicacao, fk_torre) VALUES
+-- IBRAM
+('SRV-IBR-001', 'plc-ibr-001', '10.10.1.11', 'Ubuntu Server 22.04', 'Online',  '2026-09-07 08:12:00', 1),
+('SRV-IBR-002', 'plc-ibr-002', '10.10.1.12', 'Windows Server 2019', 'Alerta',  '2026-09-06 22:40:00', 2),
+('SRV-IBR-003', 'plc-ibr-003', '10.10.1.13', 'Debian 12',           'Alerta',  '2026-09-06 22:55:00', 3),
+('SRV-IBR-004', 'plc-ibr-004', '10.10.1.14', 'Ubuntu Server 20.04', 'Alerta',  '2026-09-06 23:05:00', 4),
+('SRV-IBR-005', 'plc-ibr-005', '10.10.1.15', 'Ubuntu Server 22.04', 'Online',  '2026-09-07 08:14:00', 5),
+('SRV-IBR-006', 'plc-ibr-006', '10.10.1.16', 'Windows Server 2022', 'Online',  '2026-09-07 08:16:00', 6),
+-- CSN Mineradora
+('SRV-CSN-001', 'plc-csn-001', '10.10.2.11', 'Debian 12',           'Alerta',  '2026-09-06 21:50:00', 7),
+('SRV-CSN-002', 'plc-csn-002', '10.10.2.12', 'Ubuntu Server 22.04', 'Online',  '2026-09-07 08:20:00', 8),
+('SRV-CSN-003', 'plc-csn-003', '10.10.2.13', 'Windows Server 2019', 'Alerta',  '2026-09-06 22:10:00', 9),
+('SRV-CSN-004', 'plc-csn-004', '10.10.2.14', 'Ubuntu Server 20.04', 'Online',  '2026-09-07 08:22:00', 10),
+('SRV-CSN-005', 'plc-csn-005', '10.10.2.15', 'CentOS Stream 9',     'Online',  '2026-09-07 08:24:00', 11),
+-- Anglo America
+('SRV-ANG-001', 'plc-ang-001', '10.10.3.11', 'Ubuntu Server 22.04', 'Online',  '2026-09-07 08:30:00', 12),
+('SRV-ANG-002', 'plc-ang-002', '10.10.3.12', 'Windows Server 2022', 'Online',  '2026-09-07 08:32:00', 13),
+('SRV-ANG-003', 'plc-ang-003', '10.10.3.13', 'Debian 12',           'Online',  '2026-09-07 08:34:00', 14),
+('SRV-ANG-004', 'plc-ang-004', '10.10.3.14', 'Ubuntu Server 20.04', 'Online',  '2026-09-07 08:36:00', 15),
+('SRV-ANG-005', 'plc-ang-005', '10.10.3.15', 'Windows Server 2019', 'Alerta',  '2026-09-06 21:15:00', 16),
+('SRV-ANG-006', 'plc-ang-006', '10.10.3.16', 'Ubuntu Server 22.04', 'Online',  '2026-09-07 08:40:00', 17);
+ 
+ 
+-- =========================================================
+-- PLC_COMPONENTE
+-- Métricas de alerta por PLC (CPU, RAM e Disco sempre; Rede
+-- some para as torres em 'Alerta', que exigem mais monitoramento).
+-- fk_ihm segue a mesma ordem/id da IHM inserida acima (1..17).
+-- =========================================================
+ 
+INSERT INTO plc_componente (fk_plc, fk_componente, valor_limite) VALUES
+-- IBRAM
+(1, 1, 85.00), (1, 2, 80.00), (1, 3, 90.00),
+(2, 1, 90.00), (2, 2, 88.00), (2, 3, 92.00), (2, 4, 80.00),
+(3, 1, 88.00), (3, 2, 85.00), (3, 3, 90.00), (3, 4, 75.00),
+(4, 1, 92.00), (4, 2, 90.00), (4, 3, 95.00), (4, 4, 85.00),
+(5, 1, 80.00), (5, 2, 75.00), (5, 3, 85.00),
+(6, 1, 82.00), (6, 2, 78.00), (6, 3, 88.00),
+-- CSN Mineradora
+(7, 1, 90.00), (7, 2, 85.00), (7, 3, 93.00), (7, 4, 80.00),
+(8, 1, 80.00), (8, 2, 76.00), (8, 3, 85.00),
+(9, 1, 91.00), (9, 2, 87.00), (9, 3, 94.00), (9, 4, 82.00),
+(10, 1, 78.00), (10, 2, 74.00), (10, 3, 84.00),
+(11, 1, 83.00), (11, 2, 79.00), (11, 3, 86.00),
+-- Anglo America
+(12, 1, 80.00), (12, 2, 76.00), (12, 3, 85.00),
+(13, 1, 82.00), (13, 2, 77.00), (13, 3, 87.00),
+(14, 1, 79.00), (14, 2, 75.00), (14, 3, 84.00),
+(15, 1, 81.00), (15, 2, 78.00), (15, 3, 86.00),
+(16, 1, 93.00), (16, 2, 89.00), (16, 3, 96.00), (16, 4, 88.00),
+(17, 1, 80.00), (17, 2, 76.00), (17, 3, 85.00);
 
-INSERT INTO mineradora (razao_social, cnpj) 
-VALUES 
-('Mineração Vale de Ouro S.A.', '98765432000188');
+-- Cargo do usuário, vinculado à empresa fabricante de torres (id 1).
+INSERT INTO cargo (nome, descricao, status_atividade, fk_empresa)
+VALUES ('Administrador', 'Acesso completo ao sistema de monitoramento', 'Ativo', 1);
 
-INSERT INTO endereco_mineradora (cep, logradouro, numero, complemento, bairro, cidade, estado, fk_mineradora) 
-VALUES 
-('35460000', 'Rodovia dos Minérios', 'S/N', 'KM 10 - Lote 5', 'Zona Rural', 'Brumadinho', 'MG', 1);
+-- Usuário de teste para login.
+INSERT INTO usuario
+  (nome, email, cpf, senha, data_nascimento, telefone, primeiro_acesso, status_atividade, fk_cargo, fk_mineradora)
+VALUES (
+  'João Silva',
+  'joao.silva@monitore.com.br',
+  '12345678900',
+  'senha123',
+  '1990-05-14',
+  '31999998888',
+  FALSE,
+  'Ativo',
+  (SELECT id_cargo FROM cargo WHERE nome = 'Administrador' AND fk_empresa = 1),
+  NULL
+);
 
-INSERT INTO cargo (nome, descricao, fk_empresa) 
-VALUES 
-('Administrador', 'Acesso total e gerenciamento do sistema', 1),
-('Técnico de Campo', 'Monitoramento e manutenção das torres', 1);
 
-INSERT INTO permissao (nome, descricao) 
-VALUES 
-('ALL_PRIVILEGES', 'Permissão total no sistema'),
-('READ_ONLY', 'Apenas visualização dos dashboards e torres'),
-('MAINTENANCE', 'Permissão para alterar status de manutenção das torres');
-
-INSERT INTO cargo_permissao (fk_cargo, fk_permissao) 
-VALUES 
-(1, 1),
-(2, 2),
-(2, 3);
-
-INSERT INTO usuario (nome, email, cpf, senha, data_nascimento, telefone, fk_cargo, fk_mineradora) 
-VALUES 
-('João Carlos', 'joao.carlos@techtowers.com', '11122233344', 'senha123', '1985-06-15', '11999998888', 1, 1),
-('Maria Souza', 'maria.souza@techtowers.com', '55566677788', 'senha456', '1992-10-20', '31988887777', 2, 1);
-
-INSERT INTO torre (nome, codigo, localizacao, status_operacional, fk_empresa, fk_mineradora) 
-VALUES 
-('Torre Norte Alpha', 'TN-001', 'Setor Norte - Mina 1', 'Operacional', 1, 1),
-('Torre Sul Beta', 'TS-002', 'Setor Sul - Mina 1', 'Alerta', 1, 1);
-
-INSERT INTO plc (uuid_agente, hostname, ip, sistema_operacional, status_operacional, fk_torre) 
-VALUES 
-('550e8400-e29b-41d4-a716-446655440000', 'plc-norte-01', '192.168.10.50', 'Linux Ubuntu 22.04', 'Online', 1),
-('660e8400-e29b-41d4-a716-446655440001', 'plc-sul-02', '192.168.10.51', 'Linux Ubuntu 22.04', 'Manutenção', 2);
-
-INSERT INTO componente (nome, unidade_medida) 
-VALUES 
-('CPU', '%'),
-('Memória RAM', '%'),
-('Disco', 'GB');
-
-INSERT INTO ihm_componente (fk_plc, fk_componente, valor_limite) 
-VALUES 
-(1, 1, 85.00),
-(1, 2, 90.00),
-(2, 1, 85.00),
-(2, 3, 50.00);
-
-INSERT INTO usuario (nome, email, cpf, senha, data_nascimento, telefone, fk_cargo, fk_mineradora) 
-VALUES 
-('João Carl', 'joao.carlos2@techtowers.com', '11122233445', 'senha123', '1985-06-15', '11999998888', 1, 1);
