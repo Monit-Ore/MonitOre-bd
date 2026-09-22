@@ -3,11 +3,14 @@
 -- =========================================================
 
 CREATE DATABASE monitore;
-
+-- drop DATABASE monitore; 
 USE monitore;
 
+
+
+
 -- =========================================================
--- TABELA: EMPRESA
+-- TABELA EMPRESA
 -- =========================================================
 
 CREATE TABLE empresa (
@@ -20,17 +23,7 @@ CREATE TABLE empresa (
 
 
 -- =========================================================
--- TABELA: FABRICANTE
--- =========================================================
-
-CREATE TABLE fabricante (
-    id_fabricante INT PRIMARY KEY AUTO_INCREMENT,
-    nome VARCHAR(100) NOT NULL
-);
-
-
--- =========================================================
--- TABELA: ENDERECO
+-- TABELA ENDERECO
 -- =========================================================
 
 CREATE TABLE endereco (
@@ -46,7 +39,7 @@ CREATE TABLE endereco (
 
 
 -- =========================================================
--- TABELA: TORRE
+-- TABELA TORRE
 -- =========================================================
 
 CREATE TABLE torre (
@@ -60,20 +53,20 @@ CREATE TABLE torre (
 
     CONSTRAINT fk_torre_fabricante
         FOREIGN KEY (fk_fabricante)
-        REFERENCES fabricante(id_fabricante),
+        REFERENCES empresa(id_empresa),
 
     CONSTRAINT fk_torre_endereco
         FOREIGN KEY (fk_endereco)
         REFERENCES endereco(id_endereco),
 
-    CONSTRAINT fk_torre_empresa
+    CONSTRAINT fk_torre_mineradora
         FOREIGN KEY (fk_mineradora)
         REFERENCES empresa(id_empresa)
 );
 
 
 -- =========================================================
--- TABELA: PC INDUSTRIAL
+-- TABELA PC INDUSTRIAL
 -- =========================================================
 
 CREATE TABLE pc_industrial (
@@ -91,7 +84,7 @@ CREATE TABLE pc_industrial (
 
 
 -- =========================================================
--- TABELA: COMPONENTE
+-- TABELA COMPONENTE
 -- =========================================================
 
 CREATE TABLE componente (
@@ -101,28 +94,7 @@ CREATE TABLE componente (
 
 
 -- =========================================================
--- TABELA: LIMITE_ALERTA
--- =========================================================
-
-CREATE TABLE limite_alerta (
-    fk_pc_industrial INT NOT NULL,
-    fk_componente INT NOT NULL,
-    valor_limite DECIMAL(10,2) NOT NULL,
-
-    PRIMARY KEY (fk_pc_industrial, fk_componente),
-
-    CONSTRAINT fk_limite_pc
-        FOREIGN KEY (fk_pc_industrial)
-        REFERENCES pc_industrial(id_pc_industrial),
-
-    CONSTRAINT fk_limite_componente
-        FOREIGN KEY (fk_componente)
-        REFERENCES componente(id_componente)
-);
-
-
--- =========================================================
--- TABELA: USUARIO
+-- TABELA USUARIO
 -- =========================================================
 
 CREATE TABLE usuario (
@@ -135,7 +107,9 @@ CREATE TABLE usuario (
     telefone VARCHAR(20) NOT NULL,
     ultimo_acesso DATETIME,
     fk_empresa INT NOT NULL,
-    cargo VARCHAR(100) NOT NULL,
+    cargo VARCHAR(100) NOT NULL
+    CONSTRAINT chk_cargo
+	CHECK (cargo IN ('ADMINISTRADOR', 'ANALISTA')),
 
     CONSTRAINT fk_usuario_empresa
         FOREIGN KEY (fk_empresa)
@@ -144,35 +118,34 @@ CREATE TABLE usuario (
 
 
 -- =========================================================
--- DADOS: EMPRESA
+-- EMPRESAS
 -- =========================================================
 
+-- 1 = Fabricante
+-- 2 = Mineradora
+
 INSERT INTO empresa (
-	razao_social,
+    razao_social,
     cnpj,
     email,
     tipo
-) VALUES (
-    'MonitOre Mineracao Ltda',
-    '12345678000199',
-    'contato@monitore.com',
+) VALUES
+(
+    'TechMining Sistemas Industriais Ltda',
+    '12345678000101',
+    'contato@techmining.com.br',
+    'FABRICANTE'
+),
+(
+    'Mineradora Vale do Norte S.A.',
+    '98765432000102',
+    'contato@valedonorte.com.br',
     'MINERADORA'
 );
 
 
 -- =========================================================
--- DADOS: FABRICANTE
--- =========================================================
-
-INSERT INTO fabricante (
-    nome
-) VALUES (
-    'Siemens'
-);
-
-
--- =========================================================
--- DADOS: ENDERECO
+-- ENDEREÇOS DAS TORRES
 -- =========================================================
 
 INSERT INTO endereco (
@@ -183,20 +156,60 @@ INSERT INTO endereco (
     bairro,
     cidade,
     estado
-) VALUES (
-    '01001000',
-    'Rua da Mineracao',
-    '100',
-    'Area Industrial',
-    'Centro',
+) VALUES
+(
+    '30110000',
+    'Rodovia da Mineracao',
+    '1000',
+    'Area Industrial - Torre 01',
+    'Zona Industrial',
     'Belo Horizonte',
-    'Minas Gerais'
+    'MG'
+),
+(
+    '30120000',
+    'Rodovia da Mineracao',
+    '1500',
+    'Area Industrial - Torre 02',
+    'Zona Industrial',
+    'Belo Horizonte',
+    'MG'
+),
+(
+    '30130000',
+    'Estrada da Mina',
+    '2000',
+    'Area Industrial - Torre 03',
+    'Zona Industrial',
+    'Itabira',
+    'MG'
+),
+(
+    '30140000',
+    'Estrada da Mina',
+    '2500',
+    'Area Industrial - Torre 04',
+    'Zona Industrial',
+    'Itabira',
+    'MG'
+),
+(
+    '30150000',
+    'Rodovia Mineral',
+    '3000',
+    'Area Industrial - Torre 05',
+    'Zona Industrial',
+    'Congonhas',
+    'MG'
 );
 
 
 -- =========================================================
--- DADOS: TORRE
+-- TORRES
 -- =========================================================
+
+-- Fabricante = empresa 1
+-- Mineradora = empresa 2
 
 INSERT INTO torre (
     nome,
@@ -204,17 +217,46 @@ INSERT INTO torre (
     fk_fabricante,
     fk_endereco,
     fk_mineradora
-) VALUES (
+) VALUES
+(
     'Torre de Extracao 01',
     1,
     1,
     1,
-    1
+    2
+),
+(
+    'Torre de Extracao 02',
+    1,
+    1,
+    2,
+    2
+),
+(
+    'Torre de Extracao 03',
+    1,
+    1,
+    3,
+    2
+),
+(
+    'Torre de Extracao 04',
+    1,
+    1,
+    4,
+    2
+),
+(
+    'Torre de Extracao 05',
+    1,
+    1,
+    5,
+    2
 );
 
 
 -- =========================================================
--- DADOS: PC INDUSTRIAL
+-- PCS INDUSTRIAIS
 -- =========================================================
 
 INSERT INTO pc_industrial (
@@ -223,17 +265,46 @@ INSERT INTO pc_industrial (
     status_operacional,
     fk_torre,
     uuid
-) VALUES (
+) VALUES
+(
     'PC-INDUSTRIAL-01',
-    'PC-IHM-SCADA-01',
+    'SCADA-TORRE-01',
     'ATIVO',
     1,
-    '550e8400-e29b-41d4-a716-446655440000'
+    '550e8400-e29b-41d4-a716-446655440001'
+),
+(
+    'PC-INDUSTRIAL-02',
+    'SCADA-TORRE-02',
+    'ATIVO',
+    2,
+    '550e8400-e29b-41d4-a716-446655440002'
+),
+(
+    'PC-INDUSTRIAL-03',
+    'SCADA-TORRE-03',
+    'ATIVO',
+    3,
+    '550e8400-e29b-41d4-a716-446655440003'
+),
+(
+    'PC-INDUSTRIAL-04',
+    'SCADA-TORRE-04',
+    'ATIVO',
+    4,
+    '550e8400-e29b-41d4-a716-446655440004'
+),
+(
+    'PC-INDUSTRIAL-05',
+    'SCADA-TORRE-05',
+    'ATIVO',
+    5,
+    '550e8400-e29b-41d4-a716-446655440005'
 );
 
 
 -- =========================================================
--- DADOS: COMPONENTES
+-- COMPONENTES
 -- =========================================================
 
 INSERT INTO componente (
@@ -250,7 +321,7 @@ INSERT INTO componente (
 );
 
 -- =========================================================
--- DADOS: USUÁRIOS
+-- USUÁRIOS
 -- =========================================================
 
 INSERT INTO usuario (
@@ -273,7 +344,7 @@ INSERT INTO usuario (
     '11999991111',
     NULL,
     1,
-    'ADMIN'
+    'ADMINISTRADOR'
 ),
 (
     'Operador',
@@ -283,6 +354,6 @@ INSERT INTO usuario (
     '2001-05-20',
     '11999992222',
     NULL,
-    1,
-    'OPERADOR'
+    2,
+    'ANALISTA'
 );
