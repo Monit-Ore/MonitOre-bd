@@ -1,30 +1,29 @@
--- =========================================================
+-- ============================================================
 -- BANCO DE DADOS MONITORE
--- =========================================================
+-- ============================================================
 
 CREATE DATABASE monitore;
--- drop DATABASE monitore; 
+
+-- drop DATABASE monitore;
+
 USE monitore;
 
-
-
-
--- =========================================================
--- TABELA EMPRESA
--- =========================================================
+-- ============================================================
+-- 1. TABELA EMPRESA
+-- ============================================================
 
 CREATE TABLE empresa (
     id_empresa INT PRIMARY KEY AUTO_INCREMENT,
     razao_social VARCHAR(200) NOT NULL,
-    cnpj CHAR(14) NOT NULL,
+    cnpj CHAR(14) NOT NULL UNIQUE,
     email VARCHAR(150) NOT NULL,
     tipo VARCHAR(45) NOT NULL
 );
 
 
--- =========================================================
--- TABELA ENDERECO
--- =========================================================
+-- ============================================================
+-- 2. TABELA ENDERECO
+-- ============================================================
 
 CREATE TABLE endereco (
     id_endereco INT PRIMARY KEY AUTO_INCREMENT,
@@ -38,13 +37,14 @@ CREATE TABLE endereco (
 );
 
 
--- =========================================================
--- TABELA TORRE
--- =========================================================
+-- ============================================================
+-- 3. TABELA TORRE
+-- ============================================================
 
 CREATE TABLE torre (
     id_torre INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(100) NOT NULL,
+    codigo VARCHAR(100) NOT NULL,
     monitoramento_ativo TINYINT(1) NOT NULL DEFAULT 1,
 
     fk_fabricante INT NOT NULL,
@@ -65,17 +65,17 @@ CREATE TABLE torre (
 );
 
 
--- =========================================================
--- TABELA PC INDUSTRIAL
--- =========================================================
+-- ============================================================
+-- 4. TABELA PC INDUSTRIAL
+-- ============================================================
 
-CREATE TABLE pc_industrial (
+CREATE TABLE PC_Industrial (
     id_pc_industrial INT PRIMARY KEY AUTO_INCREMENT,
-    nome CHAR(36) NOT NULL,
-    hostname VARCHAR(100) NOT NULL,
+    nome CHAR(100) NOT NULL,
+    hostname VARCHAR(100) NOT NULL UNIQUE,
     status_operacional VARCHAR(20) NOT NULL,
-    fk_torre INT NOT NULL,
-    uuid VARCHAR(45) NOT NULL,
+    fk_torre INT NOT NULL UNIQUE,
+    uuid VARCHAR(45) NOT NULL UNIQUE,
 
     CONSTRAINT fk_pc_torre
         FOREIGN KEY (fk_torre)
@@ -83,70 +83,171 @@ CREATE TABLE pc_industrial (
 );
 
 
--- =========================================================
--- TABELA COMPONENTE
--- =========================================================
+-- ============================================================
+-- 5. TABELA COMPONENTE
+-- ============================================================
 
 CREATE TABLE componente (
     id_componente INT PRIMARY KEY AUTO_INCREMENT,
-    nome VARCHAR(100) NOT NULL
+    nome VARCHAR(100) NOT NULL UNIQUE
 );
 
 
--- =========================================================
--- TABELA USUARIO
--- =========================================================
+-- ============================================================
+-- 6. TABELA LIMITE_ALERTA
+-- ============================================================
+
+CREATE TABLE limite_alerta (
+    fk_pc_industrial INT NOT NULL,
+    fk_componente INT NOT NULL,
+    valor_limite DECIMAL(10,2) NOT NULL,
+
+    PRIMARY KEY (fk_pc_industrial, fk_componente),
+
+    CONSTRAINT fk_limite_pc
+        FOREIGN KEY (fk_pc_industrial)
+        REFERENCES PC_Industrial(id_pc_industrial),
+
+    CONSTRAINT fk_limite_componente
+        FOREIGN KEY (fk_componente)
+        REFERENCES componente(id_componente)
+);
+
+
+-- ============================================================
+-- 7. TABELA USUARIO
+-- ============================================================
 
 CREATE TABLE usuario (
     id_usuario INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    cpf CHAR(11) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    cpf CHAR(11) NOT NULL UNIQUE,
     senha VARCHAR(100) NOT NULL,
-    data_nascimento DATE NOT NULL,
-    telefone VARCHAR(20) NOT NULL,
+    data_nascimento DATE,
+    telefone VARCHAR(20),
     ultimo_acesso DATETIME,
+
     fk_empresa INT NOT NULL,
-    cargo VARCHAR(100) NOT NULL
-    CONSTRAINT chk_cargo
-	CHECK (cargo IN ('ADMINISTRADOR', 'ANALISTA')),
+
+    cargo VARCHAR(100) NOT NULL,
 
     CONSTRAINT fk_usuario_empresa
         FOREIGN KEY (fk_empresa)
-        REFERENCES empresa(id_empresa)
+        REFERENCES empresa(id_empresa),
+
+    CONSTRAINT chk_cargo
+        CHECK (cargo IN ('Administrador', 'Operador'))
 );
 
 
--- =========================================================
--- EMPRESAS
--- =========================================================
+-- ============================================================
+-- INSERINDO EMPRESAS
+-- ============================================================
 
--- 1 = Fabricante
--- 2 = Mineradora
+-- ============================================================
+-- FABRICANTE
+-- ============================================================
 
 INSERT INTO empresa (
     razao_social,
     cnpj,
     email,
     tipo
-) VALUES
-(
-    'TechMining Sistemas Industriais Ltda',
-    '12345678000101',
-    'contato@techmining.com.br',
-    'FABRICANTE'
-),
-(
-    'Mineradora Vale do Norte S.A.',
-    '98765432000102',
-    'contato@valedonorte.com.br',
-    'MINERADORA'
+)
+VALUES (
+    'MonitOre Sistemas Industriais Ltda.',
+    '00000000000001',
+    'contato@monitore.com.br',
+    'Fabricante'
 );
 
 
--- =========================================================
--- ENDEREÇOS DAS TORRES
--- =========================================================
+-- ============================================================
+-- 10 MINERADORAS / CLIENTES
+-- ============================================================
+
+INSERT INTO empresa (
+    razao_social,
+    cnpj,
+    email,
+    tipo
+)
+VALUES
+(
+    'Vale S.A.',
+    '33592510000154',
+    'contato@vale.com',
+    'Mineradora'
+),
+
+(
+    'CSN Mineracao S.A.',
+    '08189185000100',
+    'contato@csn.com.br',
+    'Mineradora'
+),
+
+(
+    'Samarco Mineracao S.A.',
+    '16628281000107',
+    'contato@samarco.com',
+    'Mineradora'
+),
+
+(
+    'Anglo American Minerio de Ferro Brasil S.A.',
+    '02359572000359',
+    'contato@angloamerican.com',
+    'Mineradora'
+),
+
+(
+    'Gerdau Acos Longos S.A.',
+    '07682289000166',
+    'contato@gerdau.com',
+    'Mineradora'
+),
+
+(
+    'Mineracao Usiminas S.A.',
+    '12345678000190',
+    'contato@usiminas.com',
+    'Mineradora'
+),
+
+(
+    'Companhia Brasileira de Metalurgia e Mineracao',
+    '12345678000271',
+    'contato@cbmm.com',
+    'Mineradora'
+),
+
+(
+    'Nexa Recursos Minerais S.A.',
+    '12345678000352',
+    'contato@nexaresources.com',
+    'Mineradora'
+),
+
+(
+    'Mineracao Rio do Norte S.A.',
+    '12345678000433',
+    'contato@mrn.com.br',
+    'Mineradora'
+),
+
+(
+    'ArcelorMittal Brasil S.A.',
+    '12345678000514',
+    'contato@arcelormittal.com',
+    'Mineradora'
+);
+
+
+-- ============================================================
+-- ENDEREÇOS
+-- ============================================================
 
 INSERT INTO endereco (
     cep,
@@ -156,173 +257,643 @@ INSERT INTO endereco (
     bairro,
     cidade,
     estado
-) VALUES
+)
+VALUES
 (
-    '30110000',
-    'Rodovia da Mineracao',
+    '35900000',
+    'Avenida das Minas',
     '1000',
-    'Area Industrial - Torre 01',
-    'Zona Industrial',
-    'Belo Horizonte',
-    'MG'
-),
-(
-    '30120000',
-    'Rodovia da Mineracao',
-    '1500',
-    'Area Industrial - Torre 02',
-    'Zona Industrial',
-    'Belo Horizonte',
-    'MG'
-),
-(
-    '30130000',
-    'Estrada da Mina',
-    '2000',
-    'Area Industrial - Torre 03',
-    'Zona Industrial',
+    NULL,
+    'Centro',
     'Itabira',
-    'MG'
+    'Minas Gerais'
 ),
+
 (
-    '30140000',
-    'Estrada da Mina',
-    '2500',
-    'Area Industrial - Torre 04',
-    'Zona Industrial',
-    'Itabira',
-    'MG'
-),
-(
-    '30150000',
-    'Rodovia Mineral',
-    '3000',
-    'Area Industrial - Torre 05',
-    'Zona Industrial',
+    '36415000',
+    'Rodovia BR-040',
+    '5000',
+    'Unidade Industrial',
+    'Zona Rural',
     'Congonhas',
-    'MG'
+    'Minas Gerais'
+),
+
+(
+    '35420000',
+    'Rodovia BR-262',
+    '1200',
+    'Unidade Operacional',
+    'Zona Rural',
+    'Mariana',
+    'Minas Gerais'
+),
+
+(
+    '35860000',
+    'Avenida das Operacoes',
+    '800',
+    NULL,
+    'Centro',
+    'Conceicao do Mato Dentro',
+    'Minas Gerais'
+),
+
+(
+    '36420000',
+    'Avenida Industrial',
+    '1500',
+    'Unidade Gerdau',
+    'Distrito Industrial',
+    'Ouro Branco',
+    'Minas Gerais'
+),
+
+(
+    '35685000',
+    'Rodovia BR-381',
+    '2200',
+    NULL,
+    'Zona Industrial',
+    'Itatiaiucu',
+    'Minas Gerais'
+),
+
+(
+    '38183000',
+    'Avenida Mineral',
+    '700',
+    NULL,
+    'Distrito Industrial',
+    'Araxá',
+    'Minas Gerais'
+),
+
+(
+    '38600000',
+    'Rodovia MG-010',
+    '3500',
+    NULL,
+    'Zona Rural',
+    'Paracatu',
+    'Minas Gerais'
+),
+
+(
+    '68275000',
+    'Rodovia PA-254',
+    '100',
+    NULL,
+    'Zona Rural',
+    'Porto Trombetas',
+    'Pará'
+),
+
+(
+    '29160000',
+    'Avenida Siderurgia',
+    '1800',
+    NULL,
+    'Distrito Industrial',
+    'Serra',
+    'Espírito Santo'
 );
 
 
--- =========================================================
+-- ============================================================
 -- TORRES
--- =========================================================
-
--- Fabricante = empresa 1
--- Mineradora = empresa 2
+--
+-- Fabricante:
+-- id_empresa = 1
+--
+-- Mineradoras:
+-- Vale             = 2
+-- CSN              = 3
+-- Samarco          = 4
+-- Anglo American   = 5
+-- Gerdau           = 6
+-- Usiminas         = 7
+-- CBMM             = 8
+-- Nexa             = 9
+-- MRN              = 10
+-- ArcelorMittal    = 11
+--
+-- 2 TORRES POR MINERADORA
+-- TOTAL = 20 TORRES
+-- ============================================================
 
 INSERT INTO torre (
     nome,
+    codigo,
     monitoramento_ativo,
     fk_fabricante,
     fk_endereco,
     fk_mineradora
-) VALUES
+)
+VALUES
+
+-- VALE
 (
-    'Torre de Extracao 01',
+    'Torre Vale 01',
+    'Torre-Vale-01',
     1,
     1,
     1,
     2
 ),
+
 (
-    'Torre de Extracao 02',
+    'Torre Vale 02',
+    'Torre-Vale-02',
+    1,
+    1,
+    1,
+    2
+),
+
+-- CSN
+(
+    'Torre CSN 01',
+    'Torre-CSN-01',
     1,
     1,
     2,
-    2
+    3
 ),
+
 (
-    'Torre de Extracao 03',
+    'Torre CSN 02',
+    'Torre-CSN-02',
+    1,
+    1,
+    2,
+    3
+),
+
+-- SAMARCO
+(
+    'Torre Samarco 01',
+    'Torre-Samarco-01',
     1,
     1,
     3,
-    2
+    4
 ),
+
 (
-    'Torre de Extracao 04',
+    'Torre Samarco 02',
+    'Torre-Samarco-02',
+    1,
+    1,
+    3,
+    4
+),
+
+-- ANGLO AMERICAN
+(
+    'Torre Anglo 01',
+    'Torre-Anglo-01',
     1,
     1,
     4,
-    2
+    5
 ),
+
 (
-    'Torre de Extracao 05',
+    'Torre Anglo 02',
+    'Torre-Anglo-02',
+    1,
+    1,
+    4,
+    5
+),
+
+-- GERDAU
+(
+    'Torre Gerdau 01',
+    'Torre-Gerdau-01',
     1,
     1,
     5,
-    2
+    6
+),
+
+(
+    'Torre Gerdau 02',
+    'Torre-Gerdau-02',
+    1,
+    1,
+    5,
+    6
+),
+
+-- USIMINAS
+(
+    'Torre Usiminas 01',
+    'Torre-Usiminas-01',
+    1,
+    1,
+    6,
+    7
+),
+
+(
+    'Torre Usiminas 02',
+    'Torre-Usiminas-02',
+    1,
+    1,
+    6,
+    7
+),
+
+-- CBMM
+(
+    'Torre CBMM 01',
+    'Torre-CBMM-01',
+    1,
+    1,
+    7,
+    8
+),
+
+(
+    'Torre CBMM 02',
+    'Torre-CBMM-02',
+    1,
+    1,
+    7,
+    8
+),
+
+-- NEXA
+(
+    'Torre Nexa 01',
+    'Torre-Nexa-01',
+    1,
+    1,
+    8,
+    9
+),
+
+(
+    'Torre Nexa 02',
+    'Torre-Nexa-02',
+    1,
+    1,
+    8,
+    9
+),
+
+-- MRN
+(
+    'Torre MRN 01',
+    'Torre-MRN-01',
+    1,
+    1,
+    9,
+    10
+),
+
+(
+    'Torre MRN 02',
+    'Torre-MRN-02',
+    1,
+    1,
+    9,
+    10
+),
+
+-- ARCELORMITTAL
+(
+    'Torre ArcelorMittal 01',
+    'Torre-ArcelorMittal-01',
+    1,
+    1,
+    10,
+    11
+),
+
+(
+    'Torre ArcelorMittal 02',
+    'Torre-ArcelorMittal-02',
+    1,
+    1,
+    10,
+    11
 );
 
 
--- =========================================================
--- PCS INDUSTRIAIS
--- =========================================================
+-- ============================================================
+-- PC INDUSTRIAL
+--
+-- 1 PC INDUSTRIAL PARA CADA TORRE
+-- TOTAL = 20 PCS INDUSTRIAIS
+-- ============================================================
 
-INSERT INTO pc_industrial (
+INSERT INTO PC_Industrial (
     nome,
     hostname,
     status_operacional,
     fk_torre,
     uuid
-) VALUES
+)
+VALUES
+
 (
-    'PC-INDUSTRIAL-01',
-    'SCADA-TORRE-01',
-    'ATIVO',
+    'PC-INDUSTRIAL-000000000000000000000001',
+    'PC-VALE-01',
+    'Ativo',
     1,
-    '550e8400-e29b-41d4-a716-446655440001'
+    '550e8400-e29b-41d4-a716-000000000001'
 ),
+
 (
-    'PC-INDUSTRIAL-02',
-    'SCADA-TORRE-02',
-    'ATIVO',
+    'PC-INDUSTRIAL-000000000000000000000002',
+    'PC-VALE-02',
+    'Ativo',
     2,
-    '550e8400-e29b-41d4-a716-446655440002'
+    '550e8400-e29b-41d4-a716-000000000002'
 ),
+
 (
-    'PC-INDUSTRIAL-03',
-    'SCADA-TORRE-03',
-    'ATIVO',
+    'PC-INDUSTRIAL-000000000000000000000003',
+    'PC-CSN-01',
+    'Ativo',
     3,
-    '550e8400-e29b-41d4-a716-446655440003'
+    '550e8400-e29b-41d4-a716-000000000003'
 ),
+
 (
-    'PC-INDUSTRIAL-04',
-    'SCADA-TORRE-04',
-    'ATIVO',
+    'PC-INDUSTRIAL-000000000000000000000004',
+    'PC-CSN-02',
+    'Ativo',
     4,
-    '550e8400-e29b-41d4-a716-446655440004'
+    '550e8400-e29b-41d4-a716-000000000004'
 ),
+
 (
-    'PC-INDUSTRIAL-05',
-    'SCADA-TORRE-05',
-    'ATIVO',
+    'PC-INDUSTRIAL-000000000000000000000005',
+    'PC-SAMARCO-01',
+    'Ativo',
     5,
-    '550e8400-e29b-41d4-a716-446655440005'
+    '550e8400-e29b-41d4-a716-000000000005'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000006',
+    'PC-SAMARCO-02',
+    'Ativo',
+    6,
+    '550e8400-e29b-41d4-a716-000000000006'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000007',
+    'PC-ANGLO-01',
+    'Ativo',
+    7,
+    '550e8400-e29b-41d4-a716-000000000007'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000008',
+    'PC-ANGLO-02',
+    'Ativo',
+    8,
+    '550e8400-e29b-41d4-a716-000000000008'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000009',
+    'PC-GERDAU-01',
+    'Ativo',
+    9,
+    '550e8400-e29b-41d4-a716-000000000009'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000010',
+    'PC-GERDAU-02',
+    'Ativo',
+    10,
+    '550e8400-e29b-41d4-a716-000000000010'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000011',
+    'PC-USIMINAS-01',
+    'Ativo',
+    11,
+    '550e8400-e29b-41d4-a716-000000000011'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000012',
+    'PC-USIMINAS-02',
+    'Ativo',
+    12,
+    '550e8400-e29b-41d4-a716-000000000012'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000013',
+    'PC-CBMM-01',
+    'Ativo',
+    13,
+    '550e8400-e29b-41d4-a716-000000000013'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000014',
+    'PC-CBMM-02',
+    'Ativo',
+    14,
+    '550e8400-e29b-41d4-a716-000000000014'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000015',
+    'PC-NEXA-01',
+    'Ativo',
+    15,
+    '550e8400-e29b-41d4-a716-000000000015'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000016',
+    'PC-NEXA-02',
+    'Ativo',
+    16,
+    '550e8400-e29b-41d4-a716-000000000016'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000017',
+    'PC-MRN-01',
+    'Ativo',
+    17,
+    '550e8400-e29b-41d4-a716-000000000017'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000018',
+    'PC-MRN-02',
+    'Ativo',
+    18,
+    '550e8400-e29b-41d4-a716-000000000018'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000019',
+    'PC-ARCELOR-01',
+    'Ativo',
+    19,
+    '550e8400-e29b-41d4-a716-000000000019'
+),
+
+(
+    'PC-INDUSTRIAL-000000000000000000000020',
+    'PC-ARCELOR-02',
+    'Ativo',
+    20,
+    '550e8400-e29b-41d4-a716-000000000020'
 );
 
 
--- =========================================================
+-- ============================================================
 -- COMPONENTES
--- =========================================================
+-- ============================================================
 
 INSERT INTO componente (
     nome
-) VALUES
-(
-    'CPU'
-),
-(
-    'RAM'
-),
-(
-    'DISCO'
-);
+)
+VALUES
+    ('CPU'),
+    ('RAM'),
+    ('DISCO');
 
--- =========================================================
+
+-- ============================================================
+-- LIMITES DE ALERTA
+-- ============================================================
+
+INSERT INTO limite_alerta (
+    fk_pc_industrial,
+    fk_componente,
+    valor_limite
+)
+VALUES
+
+-- PC 01
+(1, 1, 90.00),
+(1, 2, 90.00),
+(1, 3, 90.00),
+
+-- PC 02
+(2, 1, 90.00),
+(2, 2, 90.00),
+(2, 3, 90.00),
+
+-- PC 03
+(3, 1, 90.00),
+(3, 2, 90.00),
+(3, 3, 90.00),
+
+-- PC 04
+(4, 1, 90.00),
+(4, 2, 90.00),
+(4, 3, 90.00),
+
+-- PC 05
+(5, 1, 90.00),
+(5, 2, 90.00),
+(5, 3, 90.00),
+
+-- PC 06
+(6, 1, 90.00),
+(6, 2, 90.00),
+(6, 3, 90.00),
+
+-- PC 07
+(7, 1, 90.00),
+(7, 2, 90.00),
+(7, 3, 90.00),
+
+-- PC 08
+(8, 1, 90.00),
+(8, 2, 90.00),
+(8, 3, 90.00),
+
+-- PC 09
+(9, 1, 90.00),
+(9, 2, 90.00),
+(9, 3, 90.00),
+
+-- PC 10
+(10, 1, 90.00),
+(10, 2, 90.00),
+(10, 3, 90.00),
+
+-- PC 11
+(11, 1, 90.00),
+(11, 2, 90.00),
+(11, 3, 90.00),
+
+-- PC 12
+(12, 1, 90.00),
+(12, 2, 90.00),
+(12, 3, 90.00),
+
+-- PC 13
+(13, 1, 90.00),
+(13, 2, 90.00),
+(13, 3, 90.00),
+
+-- PC 14
+(14, 1, 90.00),
+(14, 2, 90.00),
+(14, 3, 90.00),
+
+-- PC 15
+(15, 1, 90.00),
+(15, 2, 90.00),
+(15, 3, 90.00),
+
+-- PC 16
+(16, 1, 90.00),
+(16, 2, 90.00),
+(16, 3, 90.00),
+
+-- PC 17
+(17, 1, 90.00),
+(17, 2, 90.00),
+(17, 3, 90.00),
+
+-- PC 18
+(18, 1, 90.00),
+(18, 2, 90.00),
+(18, 3, 90.00),
+
+-- PC 19
+(19, 1, 90.00),
+(19, 2, 90.00),
+(19, 3, 90.00),
+
+-- PC 20
+(20, 1, 90.00),
+(20, 2, 90.00),
+(20, 3, 90.00);
+
+
+-- ============================================================
 -- USUÁRIOS
--- =========================================================
+--
+-- TODOS OS USUÁRIOS SÃO DA FABRICANTE
+-- fk_empresa = 1
+--
+-- 1 Administrador
+-- 6 Operadores
+-- ============================================================
 
 INSERT INTO usuario (
     nome,
@@ -334,26 +905,97 @@ INSERT INTO usuario (
     ultimo_acesso,
     fk_empresa,
     cargo
-) VALUES
+)
+VALUES
+
+-- ============================================================
+-- ADMINISTRADOR
+-- ============================================================
+
 (
-    'Administrador',
-    'admin@monitore.com',
-    '11111111111',
+    'Carlos Henrique Almeida',
+    'carlos.almeida@monitore.com.br',
+    '00000000001',
     '123456',
-    '2000-01-15',
-    '11999991111',
-    NULL,
+    '1990-05-15',
+    '(11) 99999-1001',
+    '2026-09-26 08:30:00',
     1,
-    'ADMINISTRADOR'
+    'Administrador'
 ),
+
+-- ============================================================
+-- OPERADORES
+-- ============================================================
+
 (
-    'Operador',
-    'operador@monitore.com',
-    '22222222222',
+    'Mariana Souza Santos',
+    'mariana.santos@monitore.com.br',
+    '00000000002',
     '123456',
-    '2001-05-20',
-    '11999992222',
-    NULL,
-    2,
-    'ANALISTA'
+    '1995-03-22',
+    '(11) 99999-1002',
+    '2026-09-26 08:35:00',
+    1,
+    'Operador'
+),
+
+(
+    'Rafael Oliveira Costa',
+    'rafael.costa@monitore.com.br',
+    '00000000003',
+    '123456',
+    '1993-07-10',
+    '(11) 99999-1003',
+    '2026-09-26 08:40:00',
+    1,
+    'Operador'
+),
+
+(
+    'Juliana Martins Rocha',
+    'juliana.rocha@monitore.com.br',
+    '00000000004',
+    '123456',
+    '1997-11-05',
+    '(11) 99999-1004',
+    '2026-09-26 08:45:00',
+    1,
+    'Operador'
+),
+
+(
+    'Lucas Ferreira Lima',
+    'lucas.lima@monitore.com.br',
+    '00000000005',
+    '123456',
+    '1994-01-18',
+    '(11) 99999-1005',
+    '2026-09-26 08:50:00',
+    1,
+    'Operador'
+),
+
+(
+    'Amanda Rodrigues Silva',
+    'amanda.silva@monitore.com.br',
+    '00000000006',
+    '123456',
+    '1996-09-27',
+    '(11) 99999-1006',
+    '2026-09-26 08:55:00',
+    1,
+    'Operador'
+),
+
+(
+    'Gabriel Pereira Mendes',
+    'gabriel.mendes@monitore.com.br',
+    '00000000007',
+    '123456',
+    '1992-12-03',
+    '(11) 99999-1007',
+    '2026-09-26 09:00:00',
+    1,
+    'Operador'
 );
