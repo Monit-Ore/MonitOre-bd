@@ -95,6 +95,7 @@ CREATE TABLE limite_alerta (
     fk_componente INT NOT NULL,
     atencao DECIMAL(10,2) NOT NULL,
     critico DECIMAL(10,2) NOT NULL,
+    limite_alerta_diario INT UNSIGNED NOT NULL DEFAULT 10,
 
     PRIMARY KEY (fk_pc_industrial, fk_componente),
 
@@ -104,8 +105,17 @@ CREATE TABLE limite_alerta (
 
     CONSTRAINT fk_limite_componente
         FOREIGN KEY (fk_componente)
-        REFERENCES componente(id_componente)
+        REFERENCES componente(id_componente),
+
+    CONSTRAINT chk_limite_alerta_diario
+        CHECK (limite_alerta_diario > 0)
 );
+
+-- Para bancos já existentes:
+-- ALTER TABLE PC_Industrial
+--   DROP COLUMN limite_alerta_diario;  -- apenas se a coluna antiga tiver sido criada
+-- ALTER TABLE limite_alerta
+--   ADD COLUMN limite_alerta_diario INT UNSIGNED NOT NULL DEFAULT 10 AFTER critico;
 
 
 -- ============================================================
@@ -1064,8 +1074,4 @@ VALUES
 
 (7, 18),
 (7, 19),
-<<<<<<< HEAD
 (7, 20);
-=======
-(7, 20);
->>>>>>> 41b821fd230952d089581c549d114b8ecb13ab1f
