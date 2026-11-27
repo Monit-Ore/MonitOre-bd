@@ -1,6 +1,6 @@
 CREATE DATABASE monitore;
 USE monitore;
-
+	
 -- ============================================================
 -- 1. TABELA EMPRESA
 -- ============================================================
@@ -95,7 +95,6 @@ CREATE TABLE limite_alerta (
     fk_componente INT NOT NULL,
     atencao DECIMAL(10,2) NOT NULL,
     critico DECIMAL(10,2) NOT NULL,
-    limite_alerta_diario INT UNSIGNED NOT NULL DEFAULT 10,
 
     PRIMARY KEY (fk_pc_industrial, fk_componente),
 
@@ -105,17 +104,8 @@ CREATE TABLE limite_alerta (
 
     CONSTRAINT fk_limite_componente
         FOREIGN KEY (fk_componente)
-        REFERENCES componente(id_componente),
-
-    CONSTRAINT chk_limite_alerta_diario
-        CHECK (limite_alerta_diario > 0)
+        REFERENCES componente(id_componente)
 );
-
--- Para bancos já existentes:
--- ALTER TABLE PC_Industrial
---   DROP COLUMN limite_alerta_diario;  -- apenas se a coluna antiga tiver sido criada
--- ALTER TABLE limite_alerta
---   ADD COLUMN limite_alerta_diario INT UNSIGNED NOT NULL DEFAULT 10 AFTER critico;
 
 
 -- ============================================================
@@ -141,7 +131,7 @@ CREATE TABLE usuario (
         REFERENCES empresa(id_empresa),
 
     CONSTRAINT chk_cargo
-        CHECK (cargo IN ('Administrador', 'Operador'))
+        CHECK (cargo IN ('Administrador', 'Operador', 'Suporte'))
 );
 
 -- ============================================================
@@ -943,6 +933,7 @@ VALUES
     'Administrador'
 ),
 
+
 -- ============================================================
 -- OPERADORES
 -- ============================================================
@@ -960,15 +951,15 @@ VALUES
 ),
 
 (
-    'Rafael Oliveira Costa',
-    'rafael.costa@monitore.com.br',
+    'Guilherme Lima',
+    'glima.pastorello@gmail.com',
     '00000000003',
     '123456',
     '1993-07-10',
     '(11) 99999-1003',
     '2026-09-26 08:40:00',
     1,
-    'Operador'
+    'Suporte'
 ),
 
 (
@@ -1075,3 +1066,8 @@ VALUES
 (7, 18),
 (7, 19),
 (7, 20);
+
+select * from usuario; 
+delete from usuario where id_usuario = 13;
+delete from permissionamento where usuario_id_usuario =13;
+SELECT * FROM permissionamento;
